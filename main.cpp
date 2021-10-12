@@ -3,16 +3,15 @@
 
 using namespace std;
 
-bool gameOver = false, loose, menu = true, run = true;
-const int width{20}, height{20};
-int x, y, fruitx, fruity, bx, by, score, vidas;
-int tailX[100], tailY[100];
-int nTail;
-enum eDirection {LEFT, RIGHT, UP, DOWN};
-eDirection dir;
-char obstaculo[width][height];
-char bloques = 219;
-int seleccionador;
+bool gameOver = false, loose, menu = true, run = true;  		//declaración e inicialización de variables booleanas para el bucle while del funcionamiento principal
+const int width{20}, height{20}; 								//declaración e inicialización de variables para tamaño de recuadro
+int x, y, fruitx, fruity, bx, by, score, vidas; 				// variables generales de funcionamiento
+int tailX[100], tailY[100]; 									//arrays para cola (funcionameinto tipo coordenada)
+int nTail; 														//variable tamaño de cola
+enum eDirection {LEFT, RIGHT, UP, DOWN}; 						//declaración de variables para dirección 
+eDirection dir; 												//especificación de enumerador
+char obstaculo[width][height]; 									//declaración e inicialización de array obstaculo 
+char bloques = 219;												//declaración e inicialización de variable para obstáculo 												
 
 
 void Clear();
@@ -33,27 +32,32 @@ void Keyword_Menu();
 
 void Direccion();
 
-int main(){
+void del();
+
+int main(){    
 	Status();
 	while(run == true){
 		while(menu == true){
 			Presentation();
+			del();
 			Keyword_Menu();
 		}
 		while(gameOver == true){
 			Pantalla();
+			del();
 			Keyword();
 			Direccion();
 		}
 		while (loose == true){
 			Loser();
+			del();
 			Keyword_Gameover();
 		}
 	}
 	return 0;
 }
 
-void Status(){
+void Status(){      // Función declaración de variables generales
 	gameOver = true;
 	x = width/2;
 	y = height/2;
@@ -65,7 +69,7 @@ void Status(){
 	score = 0;
 }
 
-void Pantalla(){
+void Pantalla(){    //Función renderizado de bordes y obstaculos 
 	char pantalla[width][height];
 	char a;
 	char jugador = 'O';
@@ -73,8 +77,8 @@ void Pantalla(){
 	Clear();
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
-			if (score != 0 && score%20 == 0){
-				if (bx == 0){
+			if (score != 0 && score%20 == 0){   // condicional creación de obstaculos cada 20 puntos en score
+				if (bx == 0){					//condicional para evitar cruce con margen
 					bx++;
 				}
 				if (by == 0){
@@ -89,49 +93,49 @@ void Pantalla(){
 				obstaculo[by][bx] = bloques;
 			}
 			
-			if (i == 0 && j == 0){
+			if (i == 0 && j == 0){              //condicional caso esquina superior izquierda
 				cout << "\033[0;1;37m";
 				a = 201;
 			}
-			else if (i == height - 1 && j == 0){
+			else if (i == height - 1 && j == 0){ //condicional caso esquina inferior izquierda
 				cout << "\033[0;1;37m";
 				a = 200;
 			}
-			else if (i == 0 && j == width-1){
+			else if (i == 0 && j == width-1){	//condicional caso esquina inferior derecha
 				cout << "\033[0;1;37m";
 				a = 187;
 			}
-			else if (i == height-1 && j == width-1){
+			else if (i == height-1 && j == width-1){  //condicional caso esquina inferior derecha
 				cout << "\033[0;1;37m";
 				a = 188;
 			}
-			else if (j == 0 || j == width-1){
+			else if (j == 0 || j == width-1){  //condicional caso laterales
 				cout << "\033[0;1;37m";
 				a = 186;
 			}
-			else if (i == 0 || i == height-1){
+			else if (i == 0 || i == height-1){ //condicional caso margen superior e inferior
 				cout << "\033[0;1;37m";
 				a = 205;
 			}
-			else if (i == y && j == x){
+			else if (i == y && j == x){  //condicional cabeza serpiente
 				cout << "\033[0;40;32m";
 				a = jugador;
 			}
-			else if (i == fruity && j == fruitx){
+			else if (i == fruity && j == fruitx){  //condicional fruta
 				cout << "\033[0;1;31m";
 				a = 162;
 			}
 			else{
-				a = ' ';
+				a = ' ';   	//condicional espacio de juego
 			}
 			
-			for (int k = 0; k < nTail; k++){
+			for (int k = 0; k < nTail; k++){  	//condicional cola de serpiete
 				if (tailX[k] == j && tailY[k] == i){
 					cout << "\033[0;40;32m";
 					a = 'o';
 				}
 			}
-			for (int m = 0; m < height; m++){
+			for (int m = 0; m < height; m++){ 		//condicional caso de obstaculo (berifica si la posision es igual a bloque, valor otorgado en el primer condicional)
 				for (int n = 0; n < width; n++){
 					if (obstaculo[m][n] == bloques && i == m && j == n){
 						cout << "\033[5;1;34m";
@@ -139,8 +143,8 @@ void Pantalla(){
 					}
 				}
 			}
-			pantalla[i][j] = a;
-			cout << pantalla[i][j];
+			pantalla[i][j] = a;  			//se coloca valor de "a" (de acuerdo a condicionales ) a la posicion del array 
+			cout << pantalla[i][j]; 
 		}
 		cout << "\n";
 	}
@@ -151,7 +155,7 @@ void Pantalla(){
 }
 
 
-void Keyword(){
+void Keyword(){							//Función de verificación de tecla pulsada
 	if (_kbhit())
 	{
 		switch(_getch())
@@ -177,7 +181,7 @@ void Keyword(){
 	}
 }
 
-void Direccion(){
+void Direccion(){ 						//Función de movimiento de cola y verificación de colisiones 
 	
 	int prevX = tailX[0];
 	int prevY = tailY[0];
@@ -212,8 +216,8 @@ void Direccion(){
 			break;
 	}
 	
-	if (x == fruitx && y == fruity){
-		score += 10;
+	if (x == fruitx && y == fruity){    	//Condicional colision con comida
+		score += 5;
 		fruitx = rand()%width;
 		fruity = rand()%height;
 		
@@ -235,12 +239,12 @@ void Direccion(){
 		nTail++;
 	}
 	
-	if (obstaculo[y][x] == bloques){
+	if (obstaculo[y][x] == bloques){		//Condicional colision con obstáculos
 		gameOver = false;
 		loose = true;
 	}
 	
-	if (x == 0 || x == width-1 || y == 0 || y == height-1){
+	if (x == 0 || x == width-1 || y == 0 || y == height-1){		//Condicional colision con bordes
 		vidas--;
 		x = width/2;
 		y = height/2;
@@ -250,7 +254,7 @@ void Direccion(){
 		}
 	}
 	
-	for (int j = 0; j < nTail; j++){
+	for (int j = 0; j < nTail; j++){					//Condicional colision con cola
 		if (tailX[j] == x && tailY[j] == y){
 			gameOver = false;
 			loose = true;
@@ -258,7 +262,7 @@ void Direccion(){
 	}
 }
 
-void Loser(){
+void Loser(){       //Función pantalla de perdida
 	Clear();
 	cout << "\033[1;1;31m";
 	cout << "\n\n\n\n";
@@ -268,7 +272,7 @@ void Loser(){
 	cout << "     " << "Presionar [x] para terminar de jugar" << endl;
 }
 
-void Keyword_Gameover(){
+void Keyword_Gameover(){		//Función tecla fin de juego
 	if (_kbhit())
 	{
 		switch(_getch())
@@ -281,7 +285,7 @@ void Keyword_Gameover(){
 	}
 }
 
-void Presentation(){
+void Presentation(){			//Función pantalla de inicio
 	Clear();
 	cout << "\033[0;40;32m";
 	cout << "\n\n\n\n";
@@ -290,7 +294,7 @@ void Presentation(){
 	cout << "     " << "Presionar [p] para empezar a jugar" << endl;
 }
 
-void Keyword_Menu(){
+void Keyword_Menu(){			//Función tecla inicio de juego
 	if (_kbhit())
 	{
 		switch(_getch())
@@ -303,7 +307,15 @@ void Keyword_Menu(){
 	}
 }
 
-void Clear(){
+void Clear(){					//Función borrar pantalla de comando (OPCIONAL)
 	system("cls");
 	//cout << "\033[H\033[2J\033[3J";
+}
+
+void del(){						//Función de delay de pantalla (simula sleep)
+	for ( int c = 1 ; c <= 15000 ; c++ ){
+       for ( int d = 1 ; d <= 15000 ; d++ ){
+	   }
+
+	}
 }
