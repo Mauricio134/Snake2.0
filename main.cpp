@@ -11,7 +11,8 @@ int nTail; 														//variable tamaño de cola
 enum eDirection {LEFT, RIGHT, UP, DOWN}; 						//declaración de variables para dirección 
 eDirection dir; 												//especificación de enumerador
 char obstaculo[width][height]; 									//declaración e inicialización de array obstaculo 
-char bloques = 219;												//declaración e inicialización de variable para obstáculo 												
+char bloques = 219;												//declaración e inicialización de variable para obstáculo
+int delay = 15000; 												//declaración e inicialización de variable delay
 
 
 void Clear();
@@ -44,7 +45,9 @@ int main(){
 		}
 		while(gameOver == true){
 			Pantalla();
-			del();
+			if (delay != 0){
+				del();
+			}
 			Keyword();
 			Direccion();
 		}
@@ -312,10 +315,14 @@ void Clear(){					//Función borrar pantalla de comando (OPCIONAL)
 	//cout << "\033[H\033[2J\033[3J";
 }
 
-void del(){						//Función de delay de pantalla (simula sleep)
-	for ( int c = 1 ; c <= 15000 ; c++ ){
-       for ( int d = 1 ; d <= 15000 ; d++ ){
+void del(){
+						//Función de delay de pantalla (simula sleep)
+	for ( int c = 1 ; c <= delay ; c++ ){
+       for ( int d = 1 ; d <= delay ; d++ ){
 	   }
-
+	}
+	
+	if (score%20 == 0){
+		delay = delay - 100;
 	}
 }
